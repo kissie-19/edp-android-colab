@@ -7,26 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,9 +37,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding)) {
-                        BusinessCard()
-                    }
+                    Box(modifier = Modifier.padding(innerPadding)) { BusinessCard() }
                 }
             }
         }
@@ -60,43 +46,47 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BusinessCard() {
-    Column(Modifier.fillMaxSize().background(Color(0xFFF4F2F1)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        Image(painterResource(R.drawable.profile),
-            contentDescription = "Profile photo",
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.TopCenter,
-            modifier = Modifier.size(180git.dp)
-                .clip(CircleShape)
-                .border(2.dp, Color(0xFF771C1B), CircleShape))
-        Spacer(Modifier.height(16.dp))
-        Text("KISSIE ANN APPLE APUT", fontSize = 24.sp,
-            fontWeight = FontWeight.Bold, color = Color(0xFF771C1B))
-        Text("BSIT | STUDENT", fontSize = 16.sp,
-            color = Color.DarkGray)
-        Spacer(Modifier.height(24.dp))
-// a reusable contact row
-        ContactRow(
-            Icons.Default.Phone,
-            "+63 900 000 0000")
-        ContactRow(Icons.Default.Email,
-            "kaaput42160@liceo.edu.ph")
+    val darkMode = isSystemInDarkTheme()
+    val backgroundColor = if (darkMode) Color(0xFF121212) else Color(0xFFF4F2F1)
+    val cardColor = if (darkMode) Color(0xFF2A1B3D) else Color(0xFFEDE0FF)
+    val primaryText = if (darkMode) Color.White else Color(0xFF771C1B)
+    val secondaryText = if (darkMode) Color.LightGray else Color.DarkGray
+
+    Box(modifier = Modifier.fillMaxSize().background(backgroundColor), contentAlignment = Alignment.Center) {
+        Card(
+            modifier = Modifier.fillMaxWidth(0.85f).padding(16.dp),
+            shape = RoundedCornerShape(24.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+            colors = CardDefaults.cardColors(containerColor = cardColor)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Image(
+                    painter = painterResource(R.drawable.kisi),
+                    contentDescription = "Profile photo",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(200.dp).clip(CircleShape).border(2.dp, primaryText, CircleShape)
+                )
+                Spacer(modifier = Modifier.height(18.dp))
+                Text(text = "KISSIE ANN APPLE APUT", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = primaryText, textAlign = TextAlign.Center)
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(text = "BSIT | STUDENT", fontSize = 16.sp, color = secondaryText)
+                Spacer(modifier = Modifier.height(25.dp))
+                ContactRow(icon = Icons.Default.Phone, label = "+63 936 200 8050", textColor = secondaryText)
+                ContactRow(icon = Icons.Default.Email, label = "kaaput42160@liceo.edu.ph", textColor = secondaryText)
+            }
+        }
     }
 }
+
 @Composable
-fun ContactRow(icon: ImageVector, label: String){
-    Row(Modifier.padding(vertical = 6.dp)
-        .clickable { /* TODO action */ },
-        verticalAlignment =
-            Alignment.CenterVertically) {
-        Icon(icon, null, tint = Color(0xFF771C1B))
-        Spacer(Modifier.width(8.dp))
-        Text(label) }
+fun ContactRow(icon: ImageVector, label: String, textColor: Color) {
+    Row(modifier = Modifier.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(imageVector = icon, contentDescription = null, tint = Color(0xFF771C1B))
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text = label, color = textColor, fontSize = 14.sp)
+    }
 }
 
-@Preview(name = "Card - Light", showBackground = true, widthDp = 360)
+@Preview(name = "Business Card Preview", showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-fun BusinessCardPreview() {
-    BusinessCard()
-}
+fun BusinessCardPreview() { BusinessCard() }
