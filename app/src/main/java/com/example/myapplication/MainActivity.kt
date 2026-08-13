@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,6 +16,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
             MyApplicationTheme {
 
                 Surface(
@@ -22,11 +24,16 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    AppNavHost()
+                    val profileViewModel: ProfileViewModel = viewModel()
+
+                    ProfileScreen(
+                        viewModel = profileViewModel
+                    )
 
                 }
 
             }
+
         }
     }
 }
