@@ -4,77 +4,75 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.ui.AppViewModelFactory
+import com.example.myapplication.ui.PostsScreen
+import com.example.myapplication.ui.PostsViewModel
+import com.example.myapplication.ui.ProfileScreen
+import com.example.myapplication.ui.ThemeViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApplicationTheme {
-                Scaffold(
-                    topBar = { TopAppBar(title = { Text("My Profile") }, /* icons */) },
-                    floatingActionButton = { FloatingActionButton(onClick = {}) {
-                        Icon(Icons.Default.Add, contentDescription = "Add") } }
-                ) { padding ->
-                    Column(
-                        modifier = Modifier.padding(padding).padding(16.dp).fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Box { /* avatar + Badge aligned BottomEnd */ }
-                        Text("Ada Lovelace", style = MaterialTheme.typography.headlineSmall)
-                        Text("Android Developer",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Row(Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text("Message") }
-                            OutlinedButton(onClick = {}, modifier = Modifier.weight(1f)) { Text("Follow") }
-                        }
+            val factory = AppViewModelFactory(applicationContext)
+            val postsVm: PostsViewModel = viewModel(factory = factory)
+            val themeVm: ThemeViewModel = viewModel(factory = factory)
 
-                    }
-                }
+            // TODO 13a: read the saved theme
+            val darkTheme by themeVm.isDarkTheme.collectAsStateWithLifecycle()
+
+            // TODO 13b: pass darkTheme into your theme, and switch dynamic colour off
+            MyApplicationTheme(darkTheme = darkTheme, dynamicColor = false) {
+                MySocialApp(postsVm, themeVm)
             }
         }
     }
 }
 
-
-@Preview(showBackground = true)
+// Given — copy exactly. This draws the bottom bar and swaps the two pages.
 @Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("Android")
+fun MySocialApp(postsVm: PostsViewModel, themeVm: ThemeViewModel) {
+    var tab by rememberSaveable { mutableIntStateOf(0) }
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = tab == 0,
+                    onClick = { tab = 0 },
+                    icon = { Icon(Icons.Default.Home, null) },
+                    label = { Text("Posts") },
+                )
+                NavigationBarItem(
+                    selected = tab == 1,
+                    onClick = { tab = 1 },
+                    icon = { Icon(Icons.Default.Person, null) },
+                    label = { Text("Profile") },
+                )
+            }
+        }
+    ) { padding ->
+        Box(Modifier.padding(padding)) {
+            if (tab == 0) PostsScreen(postsVm) else ProfileScreen(postsVm, themeVm)
+        }
     }
-}
-
-@Composable
-fun Greeting(x0: String) {
-    TODO("Not yet implemented")
 }
